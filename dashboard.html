@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel</title>
+</head>
+<body>
+    <h1>Painel de Controle</h1>
+
+    <div id="message"></div> <!-- Div para exibir a mensagem -->
+
+    <script>
+        // Função para obter parâmetros da URL
+        function getQueryParams() {
+            const params = {};
+            const parser = new URL(window.location.href);
+            const query = parser.search.slice(1).split('&');
+            for (const pair of query) {
+                const [key, value] = pair.split('=');
+                params[decodeURIComponent(key)] = decodeURIComponent(value);
+            }
+            return params;
+        }
+
+        // Verifica se há uma mensagem na URL e exibe
+        const queryParams = getQueryParams();
+        if (queryParams.message) {
+            document.getElementById('message').innerText = queryParams.message; // Exibe a mensagem
+        }
+    </script>
+</body>
+</html>

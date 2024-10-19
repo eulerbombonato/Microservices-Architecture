@@ -4,8 +4,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const cors = require('cors'); // Importar o CORS
 
 const app = express();
+
+// Habilitar CORS
+app.use(cors());
 app.use(express.json());
 
 // Conectar ao MongoDB
@@ -64,6 +68,8 @@ const User = mongoose.model('User', userSchema);
  *     responses:
  *       201:
  *         description: Usuário registrado com sucesso.
+ *       400:
+ *         description: E-mail ou login já estão em uso, ou senha inválida.
  *       500:
  *         description: Erro ao registrar usuário.
  */
@@ -144,9 +150,27 @@ const User = mongoose.model('User', userSchema);
  *         description: Erro ao excluir o usuário.
  */
 
+// Função para validar a senha
+const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  return passwordRegex.test(password);
+};
+
 // Rota de registro
 app.post('/register', async (req, res) => {
   const { email, login, password } = req.body;
+
+  // Verificação se o e-mail ou login já estão em uso
+  const existingUser = await User.findOne({ $or: [{ email }, { login }] });
+  if (existingUser) {
+    return res.status(400).json({ message: 'E-mail ou login já estão em uso' });
+  }
+
+  // Validação da senha
+  if (!validatePassword(password)) {
+    return res.status(400).json({ message: 'A senha deve ter pelo menos 8 caracteres e conter pelo menos um caractere especial.' });
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10); // Hash a senha
   const user = new User({ email, login, password: hashedPassword });
 

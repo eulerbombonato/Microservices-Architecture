@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+    <form id="loginForm">
+        <label for="login">Login:</label>
+        <input type="text" id="login" name="login" required>
+        <br>
+        <label for="password">Senha:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Entrar</button>
+    </form>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            const login = document.getElementById('login').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ login, password })
+            });
+
+            if (response.ok) {
+                // Login bem-sucedido
+                window.location.href = 'dashboard.html'; // Redireciona para a página de sucesso
+            } else {
+                // Tratamento de erro
+                const errorMessage = await response.json();
+                // Redirecionar para a página de erro com a mensagem de erro
+                window.location.href = `error.html?message=${encodeURIComponent(errorMessage.message)}`;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
